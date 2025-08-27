@@ -39,8 +39,8 @@ const Signup = () => {
                 <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setUsername(e.target.value)} placeholder="username" />
                 <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setEmail(e.target.value)} placeholder="emai" />
                 <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" type="password" onChange={(e) => setPasword(e.target.value)} placeholder="password" />
-                <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setRole(e.target.value)} placeholder="role" />
-                <button className="bg-blue-600 cursor-pointer p-3 rounded-lg font-bold hover:bg-blue-800 transition duration-300" onClick={handleSignup}>Signup</button>
+{/*                 <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setRole(e.target.value)} placeholder="role" />
+                <button className="bg-blue-600 cursor-pointer p-3 rounded-lg font-bold hover:bg-blue-800 transition duration-300" onClick={handleSignup}>Signup</button> */}
                 <button className="bg-blue-600 cursor-pointer p-3 rounded-lg font-bold hover:bg-blue-800 transition duration-300" onClick={()=>navigate("/Login")}>Login</button>
             </div>
         </div>
