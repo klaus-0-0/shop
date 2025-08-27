@@ -6,6 +6,6 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 5173,
     host: true,
-    allowedHosts: ['https://shop-ryri.onrender.com'], 
+    allowedHosts: ['https://frontend-wr1l.onrender.com'], 
   },
 })
