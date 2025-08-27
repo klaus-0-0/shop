@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  role      Role     @default(USER)
+
+  shops   Shop[]
+  reviews Review[]
+}
+
+model Shop {
+  id           String @id @default(uuid())
+  shopname     String
+  address      String
+  shopusername String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  reviews Review[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([shopId, userId]) //  One review per user per shop
+}
