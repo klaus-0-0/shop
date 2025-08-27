@@ -8,7 +8,8 @@ const auth = require("./auth")
 const admindata = require("./admin/data")
 
 app.use(cors({ 
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
+    origin: "https://frontend-wr1l.onrender.com",
     credentials: true
 }));
 app.use(cookieParser());
