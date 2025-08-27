@@ -39,7 +39,7 @@ router.post("/Signup", async (req, res) => {
     res.cookie('accessToken', token, {
       httpOnly: true,       // JS can't access it (XSS-safe)
       secure: true,         // only sent over HTTPS
-      sameSite: 'Strict',   // blocks CSRF
+      sameSite: 'None',     // blocks CSRF
       maxAge: 60 * 60 * 1000 // 1 hour
     });
 
@@ -69,7 +69,7 @@ router.post("/Login", async (req, res) => {
     res.cookie("accessToken", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "None",
       maxAge: 60 * 60 * 1000
     });
 
