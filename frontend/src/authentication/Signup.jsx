@@ -8,11 +8,13 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPasword] = useState("");
   const [role, setRole] = useState("USER");
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate();
 
   const handleSignup = async () => {
     try {
+      setLoading(true)
       const response = await axios.post(
         `${config.apiUrl}/Signup`,
         { username, email, password, role },
@@ -63,7 +65,7 @@ const Signup = () => {
             className="w-full py-3 mt-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
             onClick={handleSignup}
           >
-            Sign Up
+           {loading? "loading..." : "Sign Up"}
           </button>
 
           <p className="text-center text-gray-400 mt-4">
