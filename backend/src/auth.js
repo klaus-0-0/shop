@@ -88,7 +88,7 @@ router.post("/Login", async (req, res) => {
   }
 });
 
-router.post("/createShop", async (req, res) => {
+router.post("/createShop", authMiddleware, async (req, res) => {
   try {
     const { shopname, address, userId, shopusername } = req.body;
 
@@ -113,7 +113,7 @@ router.post("/createShop", async (req, res) => {
   }
 });
 
-router.post("/fetchShops", async (req, res) => {
+router.post("/fetchShops", authMiddleware, async (req, res) => {
   try {
     const shops = await prisma.shop.findMany();
     if (shops.length == 0) {
@@ -128,7 +128,7 @@ router.post("/fetchShops", async (req, res) => {
   }
 })
 
-router.post("/userRating", async (req, res) => {
+router.post("/userRating", authMiddleware, async (req, res) => {
   const { userId, shopId, comment, rating } = req.body;
 
   if (!userId || !shopId || !comment || !rating) {
@@ -163,7 +163,7 @@ router.post("/userRating", async (req, res) => {
 });
 
 // In Express
-router.get("/api/fetchreviews/:shopId", async (req, res) => {
+router.get("/api/fetchreviews/:shopId", authMiddleware, async (req, res) => {
   const { shopId } = req.params;
 
   try {
