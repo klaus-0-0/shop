@@ -13,20 +13,28 @@ const Signup = () => {
 
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `${config.apiUrl}/Signup`,
-        { username, email, password, role },
-        { withCredentials: true }
-      );
-      console.log(response);
-      navigate("/Dashboard");
-    } catch (error) {
-      console.log("signup failed", error);
-    }
-  };
+    const handleSignup = async () => {
+        try {
+            const response = await axios.post(`${config.apiUrl}/Signup`, {
+                username,
+                email,
+                password,
+                role
+            }, {
+                withCredentials: true
+            });
+
+            const userRole = response.data.user?.role;
+
+            if (userRole === "ADMIN") {
+                navigate("/AdminDashboard");
+            } else {
+                navigate("/Dashboard");
+            }
+        } catch (error) {
+            console.log("signup failed", error);
+        }
+    };
 
   return (
     <div className="min-h-screen flex flex-col relative">
