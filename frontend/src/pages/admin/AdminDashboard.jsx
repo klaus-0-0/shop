@@ -23,14 +23,21 @@ const AdminDashboard = () => {
   };
 
   const handleUserShop = (user) => {
-    navigate(`/AdminUserShop/${user.id}`, {state: user})
+    navigate(`/AdminUserShop/${user.id}`, { state: user })
   }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
 
-      <div className="sticky top-0 z-10 bg-gray-500 text-gray-900 p-6 shadow-md">
+      <div className="sticky top-0 z-10 bg-gray-500 text-gray-900 p-6 shadow-md flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <button className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-3 py-2 rounded-lg font-semibold hover:scale-105 hover:shadow-lg transition cursor-pointer"
+          onClick={() => {
+            localStorage.removeItem("user-info");
+            navigate("/Login");
+          }}>
+          Sign-out
+        </button>
       </div>
 
       <div className="p-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
