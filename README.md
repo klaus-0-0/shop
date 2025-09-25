@@ -1,4 +1,4 @@
-🚀 Full-Stack food deleviery app
+🚀 Full-Stack app creating stores
 A full-stack web application featuring secure signup/login with JWT authentication, role-based access control, and dynamic dashboard routing for `USER` and `ADMIN`.
 
 🛠 Tech Stack
