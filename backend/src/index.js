@@ -7,12 +7,12 @@ const cookieParser = require('cookie-parser');
 const auth = require("./auth")
 const admindata = require("./admin/data")
 
-app.use(cors({ 
-    origin: "http://localhost:5173",
+app.use(cors({
+    origin: "https://frontend-wr1l.onrender.com",
     credentials: true
 }));
 app.use(cookieParser());
-app.use(express.json()); 
+app.use(express.json());
 app.use("/api", auth);
 app.use("/api", admindata);
 

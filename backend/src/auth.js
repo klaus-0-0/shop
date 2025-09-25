@@ -35,12 +35,12 @@ router.post("/Signup", async (req, res) => {
       }
     });
 
-    const token = jwt.sign({ userId: newUser.id }, process.env.TOKEN, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: newUser.id, role: newUser.role }, process.env.TOKEN, { expiresIn: "1h" });
     res.cookie('accessToken', token, {
       httpOnly: true,       // JS can't access it (XSS-safe)
       secure: true,         // only sent over HTTPS
       sameSite: 'Strict',   // blocks CSRF
-      maxAge: 60 * 60 * 1000 // 1 hour
+      maxAge: 60 * 60 * 1000 // 1 hour 
     });
 
     return res.status(200).json({
@@ -80,7 +80,7 @@ router.post("/Login", async (req, res) => {
         name: userData.username,
         email: userData.email,
         role: userData.role
-      }
+      }, token
     });
   } catch (error) {
     console.error(error);
@@ -88,7 +88,7 @@ router.post("/Login", async (req, res) => {
   }
 });
 
-router.post("/createShop", async (req, res) => {
+router.post("/createShop", authMiddleware, async (req, res) => {
   try {
     const { shopname, address, userId, shopusername } = req.body;
 
@@ -115,12 +115,23 @@ router.post("/createShop", async (req, res) => {
 
 router.post("/fetchShops", async (req, res) => {
   try {
-    const shops = await prisma.shop.findMany();
+    const shops = await prisma.shop.findMany({
+      include: {
+        reviews: true,
+      },
+    });
     if (shops.length == 0) {
       return res.status(404).json({ message: "no shops avilable" });
     }
     else {
-      return res.status(200).json({ message: "here all shops list", shops })
+      // Compute average rating
+      const shopsWithRatings = shops.map((shop) => {
+        const avg =
+          shop.reviews.length > 0
+            ? shop.reviews.reduce((sum, r) => sum + r.rating, 0) / shop.reviews.length : 0;
+        return { ...shop, avgRating: avg };
+      });
+      return res.status(200).json({ message: "here all shops list", shops , shops: shopsWithRatings})
     }
   } catch (error) {
     console.error(error);
@@ -158,24 +169,6 @@ router.post("/userRating", async (req, res) => {
     return res.status(201).json({ message: "Review submitted", review: newReview });
   } catch (error) {
     console.error("Review error:", error);
-    res.status(500).json({ message: "Server issue" });
-  }
-});
-
-// In Express
-router.get("/api/fetchreviews/:shopId", async (req, res) => {
-  const { shopId } = req.params;
-
-  try {
-    const reviews = await prisma.review.findMany({ where: { shopId } });
-
-    if (!reviews || reviews.length === 0) {
-      return res.status(404).json({ message: "No reviews found" });
-    }
-
-    return res.status(200).json({ message: "Here are all user reviews", reviews });
-  } catch (error) {
-    console.error("FetchReviews error:", error);
     res.status(500).json({ message: "Server issue" });
   }
 });

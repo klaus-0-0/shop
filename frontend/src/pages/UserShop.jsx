@@ -92,7 +92,7 @@ const UserShop = () => {
         />
 
         <button
-          className="bg-green-500 p-2 rounded mt-2 hover:bg-green-600"
+          className="bg-green-500 p-2 rounded mt-2 hover:bg-green-700 cursor-pointer"
           onClick={handleUserReview}
         >
           Submit Review

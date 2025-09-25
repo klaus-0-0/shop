@@ -1,23 +1,26 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
-import axios from "axios"
-import { data } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import config from "../config";
 import { useNavigate } from "react-router-dom";
-
+import wall from "../assets/SignBI.png";
 
 const Signup = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPasword] = useState("");
-    const [role, setRole] = useState("");
+    const [role, setRole] = useState("USER");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    
+    useEffect(() => {
+        console.log("role: ", role);
+
+    }, [role])
+
     const handleSignup = async () => {
         try {
-            const response = await axios.post(`${config.apiUrl}/Signup`, {
+            const res = await axios.post(`${config.apiUrl}/Signup`, {
                 username,
                 email,
                 password,
@@ -25,26 +28,114 @@ const Signup = () => {
             }, {
                 withCredentials: true
             });
-            console.log(response)
-            navigate("/Dashboard");
+
+            console.log("user",res);
+            
+            const userRole = res.data.user?.role;
+            localStorage.setItem("user-info", JSON.stringify(res.data.token));
+            if (userRole === "ADMIN") {
+                navigate("/AdminDashboard");
+            } else {
+                navigate("/Dashboard");
+            }
         } catch (error) {
-            console.log("signup failed", error)
+            console.log("signup failed", error);
         }
-    }
+    };
 
     return (
-        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center">
-            <div className="flex flex-col bg-gray-950 p-10 gap-6 rounded-4xl w-full max-w-lg">
-                <h1 className="font-bold text-blue-500 text-2xl flex flex-col items-center gap-3 ">Signup</h1>
-                <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setUsername(e.target.value)} placeholder="username" />
-                <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setEmail(e.target.value)} placeholder="emai" />
-                <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" type="password" onChange={(e) => setPasword(e.target.value)} placeholder="password" />
-                <input className="w-full p-3  text-white bg-gray-500 border-2 rounded-sm" onChange={(e) => setRole(e.target.value)} placeholder="role" />
-                <button className="bg-blue-600 cursor-pointer p-3 rounded-lg font-bold hover:bg-blue-800 transition duration-300" onClick={handleSignup}>Signup</button>
-                <button className="bg-blue-600 cursor-pointer p-3 rounded-lg font-bold hover:bg-blue-800 transition duration-300" onClick={()=>navigate("/Login")}>Login</button>
+        <div className="min-h-screen flex flex-col relative">
+            {/* Background Image */}
+            <img
+                src={wall}
+                alt="Background"
+                className="absolute w-full h-full object-cover opacity-100"
+            />
+
+            {/* Navigation Bar */}
+            <nav className="w-full bg-white p-4 flex justify-end relative z-10">
+                <div className="flex space-x-6">
+                    <button
+                        className="text-black font-bold text-sm md:text-base cursor-pointer"
+                        onClick={() => navigate("")}
+                    >
+                        About
+                    </button>
+                    <div className="flex justify-center pt-4 gap-4">
+                        <button
+                            className="bg-black hover:bg-cyan-600 text-white py-1 px-2 md:py-2 md:px-4 rounded font-medium text-sm md:text-base transition cursor-pointer"
+                            onClick={handleSignup}
+                        >
+                            Sign up
+                        </button>
+                        <button
+                            className="bg-white hover:bg-gray-500 text-black border border-black py-1 px-2 md:py-2 md:px-4 rounded font-medium text-sm md:text-base transition cursor-pointer"
+                            onClick={() => navigate("/login")}
+                        >
+                            Log in
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Form Section */}
+            <div className="flex-1 flex items-center justify-center lg:justify-start p-4 relative z-10">
+                <div className="w-full max-w-md lg:ml-60 bg-white bg-opacity-90 p-6 rounded-lg">
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
+                        <p className="text-gray-600 mt-2">Welcome</p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <input
+                            type="text"
+                            className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                            placeholder="Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                        <input
+                            type="email"
+                            className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                            placeholder="Create a password"
+                            value={password}
+                            onChange={(e) => setPasword(e.target.value)}
+                        />
+                        <select
+                            className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                        >
+                            <option value="USER">USER</option>
+                            <option value="ADMIN">ADMIN</option>
+                        </select>
+
+                        <div className="flex justify-center pt-4 gap-4">
+                            <button
+                                className="w-50 bg-black hover:bg-cyan-700 text-white py-2 px-4 rounded font-medium transition cursor-pointer"
+                                onClick={handleSignup}
+                            >
+                                {loading ? "Loading..." : "Sign up"}
+                            </button>
+                            <button
+                                className="w-50 bg-white hover:bg-cyan-700 text-black border border-black py-2 px-4 rounded font-medium transition cursor-pointer"
+                                onClick={() => navigate("/login")}
+                            >
+                                Log in
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Signup;

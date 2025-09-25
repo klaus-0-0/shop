@@ -8,6 +8,8 @@ function isAdmin(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, process.env.TOKEN);
+        console.log(decoded);
+        
         if (decoded.role !== "ADMIN") {
             console.log("invalid admin")
             return res.status(403).json({ message: "Access denied: Admins only" });
