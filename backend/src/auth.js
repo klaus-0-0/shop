@@ -69,7 +69,7 @@ router.post("/Login", async (req, res) => {
     res.cookie("accessToken", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "None",
       maxAge: 60 * 60 * 1000
     });
 
@@ -113,7 +113,7 @@ router.post("/createShop", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/fetchShops", async (req, res) => {
+router.post("/fetchShops", authMiddleware, async (req, res) => {
   try {
     const shops = await prisma.shop.findMany({
       include: {
@@ -139,7 +139,7 @@ router.post("/fetchShops", async (req, res) => {
   }
 })
 
-router.post("/userRating", async (req, res) => {
+router.post("/userRating", authMiddleware, async (req, res) => {
   const { userId, shopId, comment, rating } = req.body;
 
   if (!userId || !shopId || !comment || !rating) {

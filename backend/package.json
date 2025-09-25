@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+<<<<<<< HEAD
   "scripts": {
     "build": "echo \"No build step required\"",
     "postinstall": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
     "start": "node src/index.js"
   },
+=======
+"scripts": {
+  "build": "echo \"No build step required\"",
+  "postinstall": "prisma generate",
+  "migrate:deploy": "prisma migrate deploy",
+  "start": "node src/index.js",
+  "deploy": "npm run migrate:deploy && npm start"
+},
+>>>>>>> f5c54a7969d43a08e44a7106618c548fd503fd94
   "keywords": [],
   "author": "",
   "license": "ISC",

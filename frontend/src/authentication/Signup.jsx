@@ -11,7 +11,7 @@ const Signup = () => {
     const [role, setRole] = useState("USER");
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     useEffect(() => {
         console.log("role: ", role);
