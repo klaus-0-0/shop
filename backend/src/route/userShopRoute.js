@@ -19,8 +19,10 @@ const csrfProtection = csrf({
 
 router.post("/createShop", authMiddleware, csrfProtection, async (req, res) => {
   try {
-    const { shopname, address, userId, shopusername } = req.body;
-
+    const { shopname, address, shopusername } = req.body;
+    const userId = req.user.userId;
+    console.log("userid = ",userId);
+    
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(400).json({ message: "Invalid userId" });
@@ -53,15 +55,7 @@ router.get("/fetchShops", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "no shops avilable" });
     }
     else {
-      // Compute average rating 
-      // const shopsWithRatings = shops.map((shop) => { 
-      //   const avg =
-      //     shop.reviews.length > 0
-      //       ? shop.reviews.reduce((sum, r) => sum + r.rating, 0) / shop.reviews.length : 0;
-      //   return { ...shop, avgRating: avg }; 
-      // });
       console.log("shops", shops);
-
       return res.status(200).json({ message: "here all shops list", shops })
     }
   } catch (error) {
@@ -72,7 +66,7 @@ router.get("/fetchShops", authMiddleware, async (req, res) => {
 
 router.post("/userRating", authMiddleware, csrfProtection, async (req, res) => {
   const { shopId, comment, rating } = req.body;
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   if (!shopId || !comment || !rating) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -159,7 +153,7 @@ router.get("/fetchreviews/:id", authMiddleware, async (req, res) => {
 
 // Update Password Route
 router.put("/updatePassword", authMiddleware, csrfProtection, async (req, res) => {
-  const userId = req.user.id; // Get user ID from auth middleware
+  const userId = req.user.userId; 
   const { currentPassword, newPassword, confirmPassword } = req.body;
 
   // Validate input
