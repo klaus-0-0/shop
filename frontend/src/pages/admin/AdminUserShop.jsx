@@ -12,6 +12,20 @@ const AdminUserShop = () => {
     const [shopId, setShopId] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
+    const [csrfToken, setCsrfToken] = useState("");
+
+    useEffect(() => {
+        const fetchCsrfToken = async () => {
+            try {
+                const res = await axios.get(`${config.apiUrl}/csrf-token`);
+                setCsrfToken(res.data.csrfToken);
+            } catch (error) {
+                console.error("Failed to fetch CSRF token", error.message);
+            }
+        };
+
+        fetchCsrfToken();
+    }, []);
 
     useEffect(() => {
         const shop = location.state;
@@ -26,10 +40,21 @@ const AdminUserShop = () => {
 
     const handleDeleteShop = async () => {
         try {
-            const response = await axios.post(`${config.apiUrl}/deleteShop`, {
-                id: shopId
-            }, {withCredentials: true});
-            if (response.status === 200) { 
+            const response = await axios.post(
+                `${config.apiUrl}/deleteShop`,
+                {
+                    id: shopId
+                },
+                {
+                    headers: {
+                        "X-CSRF-Token": csrfToken,
+                        "Content-Type": "application/json"
+                    },
+                    withCredentials: true
+                }
+            );
+
+            if (response.status === 200) {
                 alert("shop deleted success")
                 navigate("/AdminDashboard");
             }

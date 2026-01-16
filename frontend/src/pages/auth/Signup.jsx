@@ -1,0 +1,187 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import wall from "../../assets/SignBI.png";
+import config from "../../config";
+
+axios.defaults.withCredentials = true;
+
+const Signup = () => {
+  const navigate = useNavigate();
+
+  const [username, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("USER");
+  const [csrfToken, setCsrfToken] = useState("");
+
+  // useEffect(() => {
+  //   const info = localStorage.getItem("user-info");
+  //   if (info) {
+  //     navigate("/Dashboard");
+  //   }
+  // }, [navigate]);
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const res = await axios.get(`${config.apiUrl}/csrf-token`);
+        setCsrfToken(res.data.csrfToken);
+      } catch (error) {
+        console.error("Failed to fetch CSRF token", error.message);
+      }
+    };
+
+    fetchCsrfToken();
+  }, []);
+
+  useEffect(() => {
+    console.log("roll", role);
+    
+  }, [role])
+  
+  const handleSignup = async () => {
+    // Check if CSRF token exists
+    if (!csrfToken) {
+      console.error("CSRF token not available");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${config.apiUrl}/signup`,
+        {
+          username,
+          email,
+          password,
+          role
+        },
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      console.log("data", res);
+      const userRole = res.data.user?.role;
+      localStorage.setItem("userData", JSON.stringify(res.data.userData));
+      console.log("role", role);
+
+      if (userRole === "ADMIN") {
+        navigate("/admindashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error(
+        "Signup Failed:",
+        error?.response?.data || error.message
+      );
+
+      // Handle CSRF token error
+      if (error.response?.status === 403) {
+        console.error("CSRF token invalid or expired");
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col relative">
+      <img
+        src={wall}
+        alt="Background"
+        className="absolute w-full h-full object-cover opacity-100"
+      />
+
+      <nav className="w-full bg-transparent p-4 flex justify-end relative z-10 border-b-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 md:gap-6">
+          <button
+            className="text-black font-bold text-sm md:text-base"
+            onClick={() => navigate("")}
+          >
+            About
+          </button>
+          <button
+            className="bg-black hover:bg-cyan-700 text-white py-1 px-2 md:py-2 md:px-4 rounded font-medium text-sm md:text-base transition cursor-pointer"
+            onClick={handleSignup}
+          >
+            Sign up
+          </button>
+          <button
+            className="bg-white hover:bg-cyan-700 text-black border border-black py-1 px-2 md:py-2 md:px-4 rounded font-medium text-sm md:text-base transition cursor-pointer"
+            onClick={() => navigate("/login")}
+          >
+            Log in
+          </button>
+        </div>
+      </nav>
+
+      <div className="flex-1 flex items-center justify-center lg:justify-start p-4 relative z-10">
+        <div className="w-full max-w-md lg:ml-80 bg-transparent bg-opacity-90 p-6 rounded-lg">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
+            <p className="text-gray-600 mt-2">Welcome</p>
+          </div>
+
+          <div className="space-y-4">
+            <input
+              type="text"
+              className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setName(e.target.value)}
+            />
+
+            <input
+              type="text"
+              className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+              placeholder="enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <input
+              type="password"
+              className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full border border-black rounded p-2 focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-white"
+            >
+              <option value="" disabled>
+                Select role
+              </option>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+
+
+            <div className="flex justify-center pt-4 gap-4">
+              <button
+                className="w-50 bg-black  text-white py-2 px-4 rounded font-medium transition cursor-pointer"
+                onClick={handleSignup}
+              >
+                Sign up
+              </button>
+              <button
+                className="w-50 bg-white hover:bg-cyan-700 text-black border border-black py-2 px-4 rounded font-medium transition cursor-pointer"
+                onClick={() => navigate("/login")}
+              >
+                Log in
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;

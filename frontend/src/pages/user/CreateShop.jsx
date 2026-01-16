@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import config from "../config";
+import config from "../../config";
 import { useNavigate } from "react-router-dom";
 
 const CreateShop = () => {
@@ -8,10 +8,25 @@ const CreateShop = () => {
   const [address, setAddress] = useState("");
   const [userId, setUserId] = useState("");
   const [shopusername, setShopUserName] = useState("");
+  const [csrfToken, setCsrfToken] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getID = JSON.parse(localStorage.getItem("user-info"));
+    const fetchCsrfToken = async () => {
+      try {
+        const res = await axios.get(`${config.apiUrl}/csrf-token`);
+        setCsrfToken(res.data.csrfToken);
+      } catch (error) {
+        console.error("failed to fetch csrftoken", error.message);
+      }
+    }
+
+    fetchCsrfToken();
+  }, []);
+
+  useEffect(() => {
+    const getID = JSON.parse(localStorage.getItem("userData"));
     if (getID) {
       const usersID = getID.id;
       setUserId(usersID);
@@ -26,6 +41,12 @@ const CreateShop = () => {
         address,
         userId,
         shopusername,
+      }, {
+        headers: {
+          "X-Csrf-Token": csrfToken,
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
       });
 
       console.log("Shop created:", res.data);
@@ -39,17 +60,17 @@ const CreateShop = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white px-4 py-6">
-      
+
       <div className="m-6">
         <button
           onClick={() => navigate("/Dashboard")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
         >
-           Back to Dashboard
+          Back to Dashboard
         </button>
       </div>
 
-      
+
       <div className="max-w-md mx-auto bg-gray-950 rounded-xl p-6 space-y-5 shadow-lg ">
         <h2 className="text-2xl font-bold text-center text-blue-400">Create a New Shop</h2>
 

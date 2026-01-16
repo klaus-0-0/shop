@@ -1,16 +1,14 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard"
-import './App.css'
-import UserShop from "./pages/UserShop";
-import Signup from "./authentication/Signup";
-import Login from "./authentication/Login";
+import Dashboard from "./pages/user/Dashboard";
+import UserShop from "./pages/user/UserShop";
+import Signup from "./pages/auth/Signup";
+import Login from "./pages/auth/Login";
+import CreateShop from "./pages/user/CreateShop";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import CreateShop from "./pages/CreateShop";
 import AdminUserShop from "./pages/admin/AdminUserShop";
+import UpdatePassword from "./pages/user/UpdatePassword";
 
 function App() {
-
 
   return (
     <Router>
@@ -21,6 +19,7 @@ function App() {
         <Route path="/" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/createShop" element={<CreateShop />} />
+        <Route path="/updatepassword" element={<UpdatePassword />} />
 
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/AdminUserShop/:id" element={<AdminUserShop />} />

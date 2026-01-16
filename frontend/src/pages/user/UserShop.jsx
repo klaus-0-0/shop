@@ -1,23 +1,38 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import config from "../config";
+import config from "../../config";
 import { useLocation } from "react-router-dom";
 
 const UserShop = () => {
   const [shopName, setShopName] = useState("");
-  const [userId, setUserId] = useState("");
+  // const [userId, setUserId] = useState("");
   const [shopId, setShopId] = useState("");
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState("");
   const [review, setReview] = useState([]);
+  const [avgRating, setAvgRating] = useState("");
+  const [csrfToken, setCsrfToken] = useState("");
 
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const res = await axios.get(`${config.apiUrl}/csrf-token`);
+        setCsrfToken(res.data.csrfToken);
+      } catch (error) {
+        console.error("failed to fetch csrf token ", error.message);
+      }
+    }
+
+    fetchCsrfToken();
+  }, []);
 
   useEffect(() => {
     const shop = location.state;
     if (shop) {
       setShopName(shop.shopname);
-      setUserId(shop.userId);
+      // setUserId(shop.userId);
       setShopId(shop.id);
     }
   }, [location.state]);
@@ -28,24 +43,46 @@ const UserShop = () => {
     }
   }, [shopId]);
 
+  useEffect(() => {
+    // Check if review array exists and has items
+    if (!review || review.length === 0) {
+      setAvgRating(0); // Set to 0 when no reviews
+      return;
+    }
+
+    let total = 0;
+    review.forEach(item => {
+      total += item.rating;
+    });
+
+    // Calculate average only if length > 0
+    const average = total / review.length;
+    setAvgRating(average);
+    console.log("Calculated average = ", average);
+  }, [review]);
+
   const FetchReviews = async () => {
     try {
-      const res = await axios.get(`${config.apiUrl}/api/fetchreviews/${shopId}`);
+      const res = await axios.get(
+        `${config.apiUrl}/fetchreviews/${shopId}`,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log("Reviews =", res);
+      setReview(res.data.reviews);
+      console.log("res = ", res);
 
-      if (!res.data.reviews || res.data.reviews.length === 0) {
-        console.log("No reviews found");
-        setReview([]);
-      } else {
-        console.log("Reviews =", res.data.reviews);
-        setReview(res.data.reviews);
-      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
   };
 
-  const handleUserReview = async () => {
-    const numericRating = parseInt(rating);
+  const handleReviewSubmit = async () => {
+    const numericRating = Number(rating);
     if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
       alert("Please enter a rating between 1 and 5.");
       return;
@@ -53,17 +90,22 @@ const UserShop = () => {
 
     try {
       const res = await axios.post(`${config.apiUrl}/userRating`, {
-        userId,
         shopId,
         comment,
         rating: numericRating,
+      }, {
+        headers: {
+          "X-Csrf-Token": csrfToken,
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
       });
 
       console.log("Review submitted:", res.data);
       alert("Review submitted successfully!");
       setComment("");
       setRating("");
-      await FetchReviews(); // Refresh reviews after submission
+      await FetchReviews();
     } catch (err) {
       console.error("Error submitting review:", err);
       alert(err.response?.data?.message || "Server error. Try again later.");
@@ -93,11 +135,14 @@ const UserShop = () => {
 
         <button
           className="bg-green-500 p-2 rounded mt-2 hover:bg-green-700 cursor-pointer"
-          onClick={handleUserReview}
+          onClick={() => handleReviewSubmit()}
         >
           Submit Review
         </button>
 
+        <div>
+          <p className="">avg-Ratign: {avgRating}</p>
+        </div>
         <div className="mt-10 w-full max-w-xl">
           <h3 className="text-lg font-semibold mb-4">User Reviews</h3>
           {review.length === 0 ? (

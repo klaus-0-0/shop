@@ -2,9 +2,19 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const express = require("express");
 const router = express.Router();
-const isAdmin = require("./authAdmin");
+const isAdmin = require("../middleware/adminAuthMiddleware");
+const csrf = require("csurf");
 
-router.post("/AdminDashboard", isAdmin, async (req, res) => {
+// CSRF middleware (cookie based)
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true 
+  }
+});
+
+router.get("/AdminDashboard", isAdmin, async (req, res) => {
   try {
     const userData = await prisma.shop.findMany();
 
@@ -22,7 +32,7 @@ router.post("/AdminDashboard", isAdmin, async (req, res) => {
   }
 });
 
-router.post("/deleteShop", isAdmin, async (req, res) => {
+router.post("/deleteShop", isAdmin, csrfProtection, async (req, res) => {
   const { id } = req.body;
   try {
     const response = await prisma.shop.findUnique({ where: { id } });
@@ -30,9 +40,12 @@ router.post("/deleteShop", isAdmin, async (req, res) => {
       res.status(404).json({ message: "shop not deleted" });
     }
     else {
-      const deleteReviews = await prisma.review.deleteMany({ where: { shopId: id } });
+      // first had to delete linked table to that ahop which is review
+      const deleteReviews = await prisma.review.deleteMany({ where: { shopId: id } }); 
       const deleteShop = await prisma.shop.delete({ where: { id } });
       res.status(200).json({ message: "delete success" });
+      console.log("ok ", deleteShop); 
+      
     }
   } catch (error) {
     console.error(error);
