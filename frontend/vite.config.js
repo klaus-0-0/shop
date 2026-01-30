@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    allowedHosts: ['frontend-wr1l.onrender.com'], 
+    allowedHosts: ['stake-swlk.onrender.com'], 
   },
 })
